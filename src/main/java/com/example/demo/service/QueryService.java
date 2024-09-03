@@ -1,0 +1,230 @@
+package com.example.demo.service;
+
+import com.example.demo.entity.BatchQueryInfo;
+import com.example.demo.entity.Message;
+import com.example.demo.entity.QueryInfo;
+import com.example.demo.entity.User;
+import com.example.demo.mapper.QueryMapper;
+import com.example.demo.redis.RedisMQ;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+@Service
+public class QueryService {
+    private static final String USER_CACHE_KEY_PREFIX = "user:";
+    private static final String MOBILE_CACHE_KEY_PREFIX = "mobile:";
+
+    @Autowired
+    private QueryMapper queryMapper;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private ThreeCustService threeCustService;
+
+    @Autowired
+    private RedisMQ redisMQ;
+
+
+    public User getUser(QueryInfo queryInfo) {
+        String cache_key = "";
+        if (queryInfo.getCustId() != null) cache_key = USER_CACHE_KEY_PREFIX + queryInfo.getCustId();
+        else if (queryInfo.getMobile() != null) cache_key = MOBILE_CACHE_KEY_PREFIX + queryInfo.getMobile();
+        else {
+            return null;
+        }
+        User user = (User) redisTemplate.opsForValue().get(cache_key);
+        try {
+            if (user != null) {
+                System.out.println("cache hit");
+            } else {
+                System.out.println("cache miss");
+                user = queryMapper.query(queryInfo);
+            }
+            return user;
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (user != null) {
+                User new_user = user.clone();
+                Message message = new Message(new Date(), new_user.getCustId());
+
+                redisMQ.add(message);
+
+                new_user.setSendNum(user.getSendNum() + 1); //自增
+                String cache_key1 = USER_CACHE_KEY_PREFIX + new_user.getCustId();
+                String cache_key2 = MOBILE_CACHE_KEY_PREFIX + new_user.getMobile();
+                redisTemplate.opsForValue().set(cache_key1, new_user, 100, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(cache_key2, new_user, 100, TimeUnit.MINUTES);
+
+            }
+        }
+
+    }
+
+    //用多个线程 测试过后发现慢多了
+//    public List<String> getCustIdBatch(BatchQueryInfo batchQueryInfo) {
+////        List<String> result = queryMapper.batch_query(batchQueryInfo);
+//        long l = System.currentTimeMillis();
+//        String[] provinces = batchQueryInfo.getProvinces();
+//        List<String> result = new ArrayList<>();
+//        for (String province : provinces) {
+//            result.addAll(threeCustService.getProvince(province));
+//        }
+//        int num = 0;
+//        if (batchQueryInfo.getSendLimit() != null) num++;
+//        if (batchQueryInfo.getRiskRatio() != null) num++;
+//        if (batchQueryInfo.getPushRatio() != null) num++;
+//
+//        AtomicReference<List<String>> result1 = new AtomicReference<>(new ArrayList<>());
+//        AtomicReference<List<String>> result2 = new AtomicReference<>(new ArrayList<>());
+//        AtomicReference<List<String>> result3 = new AtomicReference<>(new ArrayList<>());
+//        try {
+//            ExecutorService executor = Executors.newFixedThreadPool(num);
+//            final CountDownLatch countDownLatch = new CountDownLatch(num);
+//            if (batchQueryInfo.getSendLimit() != null) {
+//                executor.execute(() -> {
+//                    Map<String, Integer> custTime = threeCustService.getCustTime();
+//                    result1.set(result.stream().filter(a ->
+//                            custTime.get(a) == null || custTime.get(a) < batchQueryInfo.getSendLimit()
+//                    ).collect(Collectors.toList()));
+//                    countDownLatch.countDown();
+//                });
+//            }
+//            if (batchQueryInfo.getPushRatio() != null) {
+//                executor.execute(() -> {
+//                    Map<String, Double> pushRatio = threeCustService.getPushRatio();
+//                    result2.set(result.stream().filter(a ->
+//                            pushRatio.get(a) == null || pushRatio.get(a) * 100 >= batchQueryInfo.getPushRatio()
+//                    ).collect(Collectors.toList()));
+//                    countDownLatch.countDown();
+//                });
+//            }
+//
+//
+//            if (batchQueryInfo.getRiskRatio() != null) {
+//                executor.execute(() -> {
+//                    Map<String, Double> riskRatio = threeCustService.getRiskRatio();
+//                    result3.set(result.stream().filter(a ->
+//                            riskRatio.get(a) == null || riskRatio.get(a) * 100 <= batchQueryInfo.getRiskRatio()
+//                    ).collect(Collectors.toList()));
+//                    countDownLatch.countDown();
+//                });
+//            }
+//
+//
+//            countDownLatch.await();
+//            executor.shutdown();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        List<String> list= (List<String>) CollectionUtils.intersection(result1.get(), result2.get()).stream().collect(Collectors.toList());
+//        List<String> list2= (List<String>) CollectionUtils.intersection(list, result3.get()).stream().collect(Collectors.toList());
+//
+//        System.out.println("result:" + list2.size());
+//        long l1 = System.currentTimeMillis();
+//        System.out.println(l1 - l);
+//
+////        Collection disjunction = CollectionUtils.disjunction(result, xxx);
+////        Collection subtract = CollectionUtils.subtract(xxx, result);
+//
+//
+//        return list2;
+//    }
+
+
+    //按顺序过滤
+//    public List<String> getCustIdBatch(BatchQueryInfo batchQueryInfo) {
+////        List<String> result = queryMapper.batch_query(batchQueryInfo);
+//        long l = System.currentTimeMillis();
+//        String[] provinces = batchQueryInfo.getProvinces();
+//        List<String> result = new ArrayList<>();
+//        for (String province : provinces) {
+//            result.addAll(threeCustService.getProvince(province));
+//        }
+////        List<String> xxx = queryMapper.xxx();
+////        System.out.println("xxx:"+xxx.size());
+//        Map<String, Integer> custTime = threeCustService.getCustTime();
+//        Map<String, Double> pushRatio = threeCustService.getPushRatio();
+//        Map<String, Double> riskRatio = threeCustService.getRiskRatio();
+////        System.out.println(batchQueryInfo.getSendLimit());
+//
+//        if (batchQueryInfo.getSendLimit() != null) {
+//            result = result.stream().filter(a ->
+//                    custTime.get(a) == null || custTime.get(a) < batchQueryInfo.getSendLimit()
+//            ).collect(Collectors.toList());
+//        }
+//        if (batchQueryInfo.getPushRatio() != null) {
+//            result = result.stream().filter(a ->
+//                    pushRatio.get(a) == null || pushRatio.get(a) * 100 >= batchQueryInfo.getPushRatio()
+//            ).collect(Collectors.toList());
+//        }
+//        if (batchQueryInfo.getRiskRatio() != null) {
+//            result = result.stream().filter(a ->
+//                    riskRatio.get(a) == null || riskRatio.get(a) * 100 <= batchQueryInfo.getRiskRatio()
+//            ).collect(Collectors.toList());
+//        }
+//        System.out.println("result:" + result.size());
+//        long l1 = System.currentTimeMillis();
+//        System.out.println(l1-l);
+//
+////        Collection disjunction = CollectionUtils.disjunction(result, xxx);
+////        Collection subtract = CollectionUtils.subtract(xxx, result);
+//
+//
+//        return result;
+//    }
+
+    //一起过滤
+    public List<String> getCustIdBatch(BatchQueryInfo batchQueryInfo) {
+//        List<String> result = queryMapper.batch_query(batchQueryInfo);
+        String[] provinces = batchQueryInfo.getProvinces();
+        List<String> result = new ArrayList<>();
+        for (String province : provinces) {
+            result.addAll(threeCustService.getProvince(province));
+        }
+        Map<String, Integer> custTime;
+        if (batchQueryInfo.getSendLimit() != null)
+            custTime = threeCustService.getCustTime();
+        else {
+            custTime = new HashMap<>();
+        }
+        Map<String, Double> pushRatio;
+        if (batchQueryInfo.getPushRatio() != null)
+            pushRatio = threeCustService.getPushRatio();
+        else {
+            pushRatio = new HashMap<>();
+        }
+        Map<String, Double> riskRatio;
+        if (batchQueryInfo.getRiskRatio() != null)
+            riskRatio = threeCustService.getRiskRatio();
+        else {
+            riskRatio = new HashMap<>();
+        }
+        result = result.stream().filter(a -> {
+                    boolean b1, b2, b3;
+                    b1 = custTime.get(a) == null || custTime.get(a) < batchQueryInfo.getSendLimit();
+                    b2 = pushRatio.get(a) == null || pushRatio.get(a) * 100 >= batchQueryInfo.getPushRatio();
+                    b3 = riskRatio.get(a) == null || riskRatio.get(a) * 100 <= batchQueryInfo.getRiskRatio();
+                    return b1 && b2 && b3;
+                }
+
+        ).collect(Collectors.toList());
+
+        System.out.println("result:" + result.size());
+
+//        Collection disjunction = CollectionUtils.disjunction(result, xxx);
+//        Collection subtract = CollectionUtils.subtract(xxx, result);
+
+
+        return result;
+    }
+}

@@ -1,0 +1,22 @@
+server:
+  port: 8088
+
+spring:
+  datasource:
+#    username: root
+#    password: root
+    #url中database为对应的数据库名称
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/tiaozhan?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+#    url: jdbc:mysql://1.117.43.148:3306/database
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  type-aliases-package: com.example.demo.entity
+
+#showSql
+logging:
+  level:
+    com.example.demo.mapper: debug

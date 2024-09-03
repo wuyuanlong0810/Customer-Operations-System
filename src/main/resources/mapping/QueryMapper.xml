@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.QueryMapper">
+    <resultMap id="UserMap" type="com.example.demo.entity.User">
+        <result column="id" jdbcType="INTEGER" property="id" />
+        <result column="cust_id" jdbcType="VARCHAR" property="custId" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="real_name" jdbcType="VARCHAR" property="realName" />
+        <result column="province" jdbcType="VARCHAR" property="province" />
+        <result column="city" jdbcType="VARCHAR" property="city" />
+        <result column="address" jdbcType="VARCHAR" property="address" />
+        <result column="login_ip" jdbcType="VARCHAR" property="loginIp" />
+        <result column="login_time" jdbcType="DATE" property="loginTime" />
+        <result column="enabled" jdbcType="INTEGER" property="enabled" />
+        <result column="vip_level" jdbcType="INTEGER" property="vipLevel" />
+        <result column="send_num" jdbcType="INTEGER" property="sendNum" />
+        <result column="push_ratio" jdbcType="DOUBLE" property="pushRatio" />
+        <result column="risk_ratio" jdbcType="DOUBLE" property="riskRatio" />
+    </resultMap>
+    <resultMap id="CustInfoMap" type="com.example.demo.entity.CustTimeInfo">
+        <result column="num" jdbcType="INTEGER" property="times" />
+        <result column="cust_id" jdbcType="VARCHAR" property="custId" />
+    </resultMap>
+    <resultMap id="PushRatioMap" type="com.example.demo.entity.PushRatioInfo">
+        <result column="push_ratio" jdbcType="DECIMAL" property="pushRatio" />
+        <result column="cust_id" jdbcType="VARCHAR" property="custId" />
+    </resultMap>
+    <resultMap id="RiskRatioMap" type="com.example.demo.entity.RiskRatioInfo">
+        <result column="risk_ratio" jdbcType="DECIMAL" property="riskRatio" />
+        <result column="cust_id" jdbcType="VARCHAR" property="custId" />
+    </resultMap>
+
+<!--    <select id="batch_query" parameterType="com.example.demo.entity.BatchQueryInfo" resultType="java.lang.String">-->
+<!--        select cust_id from cust_info-->
+<!--        where 1=1-->
+<!--        and province-->
+<!--        <if test="provFilterType=='exclude'">-->
+<!--            not-->
+<!--        </if>-->
+<!--        in-->
+<!--        <foreach item="x" collection="provinces" open="(" close=")" separator="," >-->
+<!--            #{x}-->
+<!--        </foreach>-->
+<!--    </select>-->
+<!--    <select id="batch_query" parameterType="com.example.demo.entity.BatchQueryInfo" resultType="java.lang.String">-->
+<!--        select cust_id from cust_info-->
+<!--        where 1=1-->
+<!--        <if test="pushRatio != null">-->
+<!--            and    (push_ratio is null or push_ratio >= #{pushRatio})-->
+<!--        </if>-->
+<!--        <if test="riskRatio != null">-->
+<!--            and    (risk_ratio is null or risk_ratio &lt;= #{riskRatio})-->
+<!--        </if>-->
+<!--        and province-->
+<!--        <if test="provFilterType=='exclude'">-->
+<!--            not-->
+<!--        </if>-->
+<!--        in-->
+<!--        <foreach item="x" collection="provinces" open="(" close=")" separator="," >-->
+<!--            #{x}-->
+<!--        </foreach>-->
+<!--    </select>-->
+
+<!--    <select id="batch_query" parameterType="com.example.demo.entity.BatchQueryInfo" resultType="java.lang.String">-->
+<!--        select cust_info.cust_id from cust_info-->
+<!--        <if test="sendLimit != null">-->
+<!--            , (select cust_id, count(*) num from cust_records where datediff(now(),send_time) &lt;= 30 group by cust_id) as A-->
+<!--        </if>-->
+<!--        where 1=1-->
+<!--        <if test="sendLimit != null">-->
+<!--        and    cust_info.cust_id = A.cust_id-->
+<!--        </if>-->
+<!--        <if test="sendLimit != null">-->
+<!--        and    (A.num &lt; #{sendLimit})-->
+<!--        </if>-->
+<!--        <if test="pushRatio != null">-->
+<!--        and    (push_ratio is null or push_ratio >= #{pushRatio})-->
+<!--        </if>-->
+<!--        <if test="riskRatio != null">-->
+<!--        and    (risk_ratio is null or risk_ratio &lt;= #{riskRatio})-->
+<!--        </if>-->
+<!--        and province-->
+<!--        <if test="provFilterType=='exclude'">-->
+<!--            not-->
+<!--        </if>-->
+<!--        in-->
+<!--            <foreach item="x" collection="provinces" open="(" close=")" separator="," >-->
+<!--                #{x}-->
+<!--            </foreach>-->
+<!--    </select>-->
+
+
+
+    <select id="query" parameterType="com.example.demo.entity.QueryInfo" resultMap="UserMap" resultType="com.example.demo.entity.User">
+        select id, cust_id, mobile, real_name, province, city, address, login_ip, login_time, enabled, vip_level, A.num as send_num, push_ratio, risk_ratio
+        from cust_info, (select count(*) num from cust_records where cust_records.cust_id = #{custId} and datediff(now(), cust_records.send_time) &lt;= 30) as A
+        where
+            <if test="custId != null and custId != ''">
+               cust_id = #{custId}
+            </if>
+            <if test="mobile != null and mobile != ''">
+               mobile = #{mobile}
+            </if>
+            <if test="sendLimit != null and sendLimit !=''">
+               send_number &lt; #{sendLimit}
+            </if>
+            <if test="pushRatio != null and pushRatio !=''">
+               push_ratio >= #{pushRatio}
+            </if>
+            <if test="riskRatio != null and riskRatio !=''">
+               risk_ratio &lt;= #{riskRatio}
+            </if>
+
+    </select>
+    <select id="getTimeList" resultMap="CustInfoMap" resultType="com.example.demo.entity.CustTimeInfo">
+        select cust_id, count(*) num from cust_records where datediff(now(),send_time) &lt;= 30 group by cust_id
+    </select>
+    <select id="getPushRatio" resultMap="PushRatioMap" resultType="com.example.demo.entity.PushRatioInfo">
+        select cust_id,push_ratio from huilao
+    </select>
+    <select id="getRiskRatio" resultMap="RiskRatioMap" resultType="com.example.demo.entity.RiskRatioInfo">
+        select cust_id,risk_ratio from fengxian
+    </select>
+
+    <insert id="insertBatch">
+        INSERT INTO cust_records (cust_id, send_time, send_flag) VALUES
+        <foreach collection="list" separator="," item="item">
+            (#{item.custId},#{item.time}, 1)
+        </foreach>
+    </insert>
+
+    <select id="xxx" resultType="java.lang.String">
+        SELECT
+        cust_info_copy1.cust_id
+        FROM
+        cust_info_copy1
+        LEFT JOIN ( SELECT cust_id, count( * ) num FROM cust_records WHERE datediff( now( ), send_time ) &lt;= 30 GROUP BY cust_id ) AS A ON cust_info_copy1.cust_id = A.cust_id
+        WHERE
+        1 = 1
+        AND ( A.num IS NULL OR A.num &lt; 15 )
+        AND ( push_ratio IS NULL OR push_ratio >= 0.55 )
+        AND ( risk_ratio IS NULL OR risk_ratio &lt;= 0.60 )
+        AND province IN ( '北京市' )
+        ORDER BY cust_info_copy1.cust_id
+    </select>
+    <select id="getProvince" parameterType="java.lang.String" resultType="java.lang.String">
+        select cust_id from cust_info where province = #{key}
+    </select>
+
+</mapper>
