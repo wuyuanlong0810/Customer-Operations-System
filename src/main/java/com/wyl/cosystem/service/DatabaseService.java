@@ -1,11 +1,9 @@
-package com.example.demo.service;
+package com.wyl.cosystem.service;
 
-import com.example.demo.entity.Message;
-import com.example.demo.mapper.QueryMapper;
-import com.example.demo.redis.RedisMQ;
-import io.lettuce.core.ScriptOutputType;
+import com.wyl.cosystem.entity.Message;
+import com.wyl.cosystem.mapper.QueryMapper;
+import com.wyl.cosystem.redis.RedisMQ;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;

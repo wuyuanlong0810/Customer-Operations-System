@@ -1,6 +1,4 @@
-package com.example.demo.entity;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+package com.wyl.cosystem.entity;
 
 public class QueryInfo {
     private String custId;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.demo.mapper.QueryMapper">
-    <resultMap id="UserMap" type="com.example.demo.entity.User">
+<mapper namespace="com.wyl.cosystem.mapper.QueryMapper">
+    <resultMap id="UserMap" type="com.wyl.cosystem.entity.User">
         <result column="id" jdbcType="INTEGER" property="id" />
         <result column="cust_id" jdbcType="VARCHAR" property="custId" />
         <result column="mobile" jdbcType="VARCHAR" property="mobile" />
@@ -17,20 +17,20 @@
         <result column="push_ratio" jdbcType="DOUBLE" property="pushRatio" />
         <result column="risk_ratio" jdbcType="DOUBLE" property="riskRatio" />
     </resultMap>
-    <resultMap id="CustInfoMap" type="com.example.demo.entity.CustTimeInfo">
+    <resultMap id="CustInfoMap" type="com.wyl.cosystem.entity.CustTimeInfo">
         <result column="num" jdbcType="INTEGER" property="times" />
         <result column="cust_id" jdbcType="VARCHAR" property="custId" />
     </resultMap>
-    <resultMap id="PushRatioMap" type="com.example.demo.entity.PushRatioInfo">
+    <resultMap id="PushRatioMap" type="com.wyl.cosystem.entity.PushRatioInfo">
         <result column="push_ratio" jdbcType="DECIMAL" property="pushRatio" />
         <result column="cust_id" jdbcType="VARCHAR" property="custId" />
     </resultMap>
-    <resultMap id="RiskRatioMap" type="com.example.demo.entity.RiskRatioInfo">
+    <resultMap id="RiskRatioMap" type="com.wyl.cosystem.entity.RiskRatioInfo">
         <result column="risk_ratio" jdbcType="DECIMAL" property="riskRatio" />
         <result column="cust_id" jdbcType="VARCHAR" property="custId" />
     </resultMap>
 
-<!--    <select id="batch_query" parameterType="com.example.demo.entity.BatchQueryInfo" resultType="java.lang.String">-->
+<!--    <select id="batch_query" parameterType="entity.com.wyl.cosystem.BatchQueryInfo" resultType="java.lang.String">-->
 <!--        select cust_id from cust_info-->
 <!--        where 1=1-->
 <!--        and province-->
@@ -42,7 +42,7 @@
 <!--            #{x}-->
 <!--        </foreach>-->
 <!--    </select>-->
-<!--    <select id="batch_query" parameterType="com.example.demo.entity.BatchQueryInfo" resultType="java.lang.String">-->
+<!--    <select id="batch_query" parameterType="entity.com.wyl.cosystem.BatchQueryInfo" resultType="java.lang.String">-->
 <!--        select cust_id from cust_info-->
 <!--        where 1=1-->
 <!--        <if test="pushRatio != null">-->
@@ -61,7 +61,7 @@
 <!--        </foreach>-->
 <!--    </select>-->
 
-<!--    <select id="batch_query" parameterType="com.example.demo.entity.BatchQueryInfo" resultType="java.lang.String">-->
+<!--    <select id="batch_query" parameterType="entity.com.wyl.cosystem.BatchQueryInfo" resultType="java.lang.String">-->
 <!--        select cust_info.cust_id from cust_info-->
 <!--        <if test="sendLimit != null">-->
 <!--            , (select cust_id, count(*) num from cust_records where datediff(now(),send_time) &lt;= 30 group by cust_id) as A-->
@@ -91,7 +91,7 @@
 
 
 
-    <select id="query" parameterType="com.example.demo.entity.QueryInfo" resultMap="UserMap" resultType="com.example.demo.entity.User">
+    <select id="query" parameterType="com.wyl.cosystem.entity.QueryInfo" resultMap="UserMap" resultType="com.wyl.cosystem.entity.User">
         select id, cust_id, mobile, real_name, province, city, address, login_ip, login_time, enabled, vip_level, A.num as send_num, push_ratio, risk_ratio
         from cust_info, (select count(*) num from cust_records where cust_records.cust_id = #{custId} and datediff(now(), cust_records.send_time) &lt;= 30) as A
         where
@@ -112,13 +112,13 @@
             </if>
 
     </select>
-    <select id="getTimeList" resultMap="CustInfoMap" resultType="com.example.demo.entity.CustTimeInfo">
+    <select id="getTimeList" resultMap="CustInfoMap" resultType="com.wyl.cosystem.entity.CustTimeInfo">
         select cust_id, count(*) num from cust_records where datediff(now(),send_time) &lt;= 30 group by cust_id
     </select>
-    <select id="getPushRatio" resultMap="PushRatioMap" resultType="com.example.demo.entity.PushRatioInfo">
+    <select id="getPushRatio" resultMap="PushRatioMap" resultType="com.wyl.cosystem.entity.PushRatioInfo">
         select cust_id,push_ratio from huilao
     </select>
-    <select id="getRiskRatio" resultMap="RiskRatioMap" resultType="com.example.demo.entity.RiskRatioInfo">
+    <select id="getRiskRatio" resultMap="RiskRatioMap" resultType="com.wyl.cosystem.entity.RiskRatioInfo">
         select cust_id,risk_ratio from fengxian
     </select>
 

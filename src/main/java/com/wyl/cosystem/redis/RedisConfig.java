@@ -1,11 +1,9 @@
-package com.example.demo.redis;
+package com.wyl.cosystem.redis;
 
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;

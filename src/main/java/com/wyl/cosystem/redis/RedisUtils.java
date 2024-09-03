@@ -1,4 +1,4 @@
-package com.example.demo.redis;
+package com.wyl.cosystem.redis;
 
 /**
  * @Author: 吴远龙

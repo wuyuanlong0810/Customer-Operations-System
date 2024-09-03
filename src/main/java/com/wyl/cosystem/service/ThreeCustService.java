@@ -1,10 +1,12 @@
-package com.example.demo.service;
+package com.wyl.cosystem.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.example.demo.entity.*;
-import com.example.demo.mapper.QueryMapper;
-import com.example.demo.redis.RedisUtils;
+import com.wyl.cosystem.entity.CustTimeInfo;
+import com.wyl.cosystem.entity.PushRatioInfo;
+import com.wyl.cosystem.entity.RiskRatioInfo;
+import com.wyl.cosystem.mapper.QueryMapper;
+import com.wyl.cosystem.redis.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,6 @@
-package com.example.demo.utils;
+package com.wyl.cosystem.utils;
 
-import com.example.demo.redis.RedisUtils;
-import com.example.demo.service.ThreeCustService;
+import com.wyl.cosystem.service.ThreeCustService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +12,6 @@ import javax.annotation.Resource;
  */
 @Component
 public class Prehandler implements CommandLineRunner {
-
-    @Resource
-    private RedisUtils redisUtils;
 
     @Resource
     private ThreeCustService threeCustService;

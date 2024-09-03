@@ -1,11 +1,9 @@
-package com.example.demo.entity;
+package com.wyl.cosystem.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 
 public class User implements Serializable {
     private static final long SerialVersionUID = 1L;

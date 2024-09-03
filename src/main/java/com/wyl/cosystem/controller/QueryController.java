@@ -1,21 +1,19 @@
-package com.example.demo.controller;
+package com.wyl.cosystem.controller;
 
 
-import com.example.demo.entity.BatchQueryInfo;
-import com.example.demo.entity.QueryInfo;
-import com.example.demo.entity.User;
-import com.example.demo.service.FileService;
-import com.example.demo.service.QueryService;
+import com.wyl.cosystem.entity.BatchQueryInfo;
+import com.wyl.cosystem.entity.QueryInfo;
+import com.wyl.cosystem.entity.User;
+import com.wyl.cosystem.service.FileService;
+import com.wyl.cosystem.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController

@@ -1,14 +1,12 @@
-package com.example.demo.redis;
+package com.wyl.cosystem.redis;
 
-import com.example.demo.entity.Message;
+import com.wyl.cosystem.entity.Message;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 
 import javax.annotation.Resource;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 @Component

@@ -1,19 +1,17 @@
-package com.example.demo.service;
+package com.wyl.cosystem.service;
 
-import com.example.demo.entity.BatchQueryInfo;
-import com.example.demo.entity.Message;
-import com.example.demo.entity.QueryInfo;
-import com.example.demo.entity.User;
-import com.example.demo.mapper.QueryMapper;
-import com.example.demo.redis.RedisMQ;
-import org.apache.commons.collections.CollectionUtils;
+import com.wyl.cosystem.entity.BatchQueryInfo;
+import com.wyl.cosystem.entity.Message;
+import com.wyl.cosystem.entity.QueryInfo;
+import com.wyl.cosystem.entity.User;
+import com.wyl.cosystem.mapper.QueryMapper;
+import com.wyl.cosystem.redis.RedisMQ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service

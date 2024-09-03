@@ -1,11 +1,9 @@
-package com.example.demo.mapper;
+package com.wyl.cosystem.mapper;
 
 
-import com.example.demo.entity.*;
+import com.wyl.cosystem.entity.*;
 import org.springframework.stereotype.Repository;
 import java.lang.String;
-
-import java.util.Date;
 import java.util.List;
 
 @Repository

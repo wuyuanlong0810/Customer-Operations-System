@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.wyl.cosystem.entity;
 
 public class BatchQueryInfo {
     Integer sendLimit;
