@@ -46,22 +46,38 @@ public class QueryService {
             } else {
                 System.out.println("cache miss");
                 user = queryMapper.query(queryInfo);
+                Map<String, Integer> custTime = threeCustService.getCustTime();
+                Map<String, Double> pushRatio = threeCustService.getPushRatio();
+                Map<String, Double> riskRatio = threeCustService.getRiskRatio();
+                user.setSendNum(custTime.get(queryInfo.getCustId()));
+                user.setPushRatio(pushRatio.get(queryInfo.getCustId()));
+                user.setRiskRatio(riskRatio.get(queryInfo.getCustId()));
+                if (queryInfo.getSendLimit()!=null&&user.getSendNum() >= queryInfo.getSendLimit()) {
+                    return null;
+                }
+                if (queryInfo.getPushRatio()!=null&&user.getPushRatio() < queryInfo.getPushRatio()) {
+                    return null;
+                }
+                if (queryInfo.getRiskRatio()!=null&&user.getRiskRatio() > queryInfo.getRiskRatio()) {
+                    return null;
+                }
             }
             return user;
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         } finally {
             if (user != null) {
                 User new_user = user.clone();
                 Message message = new Message(new Date(), new_user.getCustId());
 
-                redisMQ.add(message);
+//                redisMQ.add(message);
 
                 new_user.setSendNum(user.getSendNum() + 1); //自增
                 String cache_key1 = USER_CACHE_KEY_PREFIX + new_user.getCustId();
                 String cache_key2 = MOBILE_CACHE_KEY_PREFIX + new_user.getMobile();
-                redisTemplate.opsForValue().set(cache_key1, new_user, 100, TimeUnit.MINUTES);
-                redisTemplate.opsForValue().set(cache_key2, new_user, 100, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(cache_key1, new_user, 10, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(cache_key2, new_user, 10, TimeUnit.MINUTES);
 
             }
         }

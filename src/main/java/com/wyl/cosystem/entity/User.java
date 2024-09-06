@@ -22,8 +22,8 @@ public class User implements Serializable {
     private int enabled;
     private int vipLevel;
     private int sendNum;
-    private double pushRatio;
-    private double riskRatio;
+    private Double pushRatio;
+    private Double riskRatio;
 
     public int getId() {
         return id;
@@ -117,23 +117,28 @@ public class User implements Serializable {
         return sendNum;
     }
 
-    public void setSendNum(int sendNum) {
-        this.sendNum = sendNum;
+    public void setSendNum(Integer sendNum) {
+        if (sendNum == null) {
+            this.sendNum = 0;
+        }else{
+            this.sendNum = sendNum;
+        }
+
     }
 
-    public double getPushRatio() {
+    public Double getPushRatio() {
         return pushRatio;
     }
 
-    public void setPushRatio(double pushRatio) {
+    public void setPushRatio(Double pushRatio) {
         this.pushRatio = pushRatio;
     }
 
-    public double getRiskRatio() {
+    public Double getRiskRatio() {
         return riskRatio;
     }
 
-    public void setRiskRatio(double riskRatio) {
+    public void setRiskRatio(Double riskRatio) {
         this.riskRatio = riskRatio;
     }
 

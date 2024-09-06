@@ -89,31 +89,42 @@
 <!--            </foreach>-->
 <!--    </select>-->
 
-
-
     <select id="query" parameterType="com.wyl.cosystem.entity.QueryInfo" resultMap="UserMap" resultType="com.wyl.cosystem.entity.User">
+        select id, cust_id, mobile, real_name, province, city, address, login_ip, login_time, enabled, vip_level
+        from cust_info
+        where 1=1
+        <if test="custId != null and custId != ''">
+            and   cust_id = #{custId}
+        </if>
+        <if test="mobile != null and mobile != ''">
+            and   mobile = #{mobile}
+        </if>
+
+    </select>
+
+    <select id="query1" parameterType="com.wyl.cosystem.entity.QueryInfo" resultMap="UserMap" resultType="com.wyl.cosystem.entity.User">
         select id, cust_id, mobile, real_name, province, city, address, login_ip, login_time, enabled, vip_level, A.num as send_num, push_ratio, risk_ratio
-        from cust_info, (select count(*) num from cust_records where cust_records.cust_id = #{custId} and datediff(now(), cust_records.send_time) &lt;= 30) as A
-        where
+        from cust_info_copy1, (select count(*) num from cust_records where cust_records.cust_id = #{custId} and datediff(now(), cust_records.send_time) &lt;= 30) as A
+        where 1=1
             <if test="custId != null and custId != ''">
-               cust_id = #{custId}
+            and   cust_id = #{custId}
             </if>
             <if test="mobile != null and mobile != ''">
-               mobile = #{mobile}
+            and   mobile = #{mobile}
             </if>
             <if test="sendLimit != null and sendLimit !=''">
-               send_number &lt; #{sendLimit}
+            and   send_num &lt; #{sendLimit}
             </if>
             <if test="pushRatio != null and pushRatio !=''">
-               push_ratio >= #{pushRatio}
+            and   push_ratio >= #{pushRatio}
             </if>
             <if test="riskRatio != null and riskRatio !=''">
-               risk_ratio &lt;= #{riskRatio}
+            and   risk_ratio &lt;= #{riskRatio}
             </if>
 
     </select>
     <select id="getTimeList" resultMap="CustInfoMap" resultType="com.wyl.cosystem.entity.CustTimeInfo">
-        select cust_id, count(*) num from cust_records where datediff(now(),send_time) &lt;= 30 group by cust_id
+        select cust_id, count(*) num from cust_records where send_time >= DATE_SUB( CURDATE( ), INTERVAL 30 DAY ) group by cust_id
     </select>
     <select id="getPushRatio" resultMap="PushRatioMap" resultType="com.wyl.cosystem.entity.PushRatioInfo">
         select cust_id,push_ratio from huilao

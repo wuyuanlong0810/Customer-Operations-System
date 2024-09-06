@@ -14,9 +14,9 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
-  type-aliases-package: com.example.demo.entity
+  type-aliases-package: com.wyl.cosystem.entity
 
 #showSql
 logging:
   level:
-    com.example.demo.mapper: debug
+    com.wyl.cosystem.mapper: debug

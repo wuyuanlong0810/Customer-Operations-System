@@ -25,7 +25,6 @@ public class QueryController {
     private QueryService queryService;
 
     @RequestMapping(value = "/api/user/get", method = RequestMethod.POST)
-//    @PostMapping("/get")
     @CrossOrigin
     public User queryUser(@RequestBody QueryInfo queryInfo) {
         User result = queryService.getUser(queryInfo);

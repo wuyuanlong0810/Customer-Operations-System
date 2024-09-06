@@ -21,7 +21,7 @@ public class DatabaseService {
 
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
-    @PostConstruct
+//    @PostConstruct
     void init(){
         EXECUTOR.submit(new Handler());
     }
