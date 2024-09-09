@@ -47,7 +47,7 @@ public class QueryController {
         try {
             String[] ps = batchQueryInfo.getProvince().split(",");
             batchQueryInfo.setProvinces(ps);
-            List<String> data = queryService.getCustIdBatch(batchQueryInfo);
+            List<Object> data = queryService.getCustIdBatch(batchQueryInfo);
 //            Collections.sort(data);
             // Generate the zip file and get the URL
             String fileUrl = fileService.generateZipFile(data);

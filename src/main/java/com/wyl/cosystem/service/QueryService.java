@@ -46,12 +46,16 @@ public class QueryService {
             } else {
                 System.out.println("cache miss");
                 user = queryMapper.query(queryInfo);
-                Map<String, Integer> custTime = threeCustService.getCustTime();
-                Map<String, Double> pushRatio = threeCustService.getPushRatio();
-                Map<String, Double> riskRatio = threeCustService.getRiskRatio();
-                user.setSendNum(custTime.get(queryInfo.getCustId()));
-                user.setPushRatio(pushRatio.get(queryInfo.getCustId()));
-                user.setRiskRatio(riskRatio.get(queryInfo.getCustId()));
+//                Map<Object, Object> custTime = threeCustService.getCustTime();
+//                Map<Object, Object> pushRatio = threeCustService.getPushRatio();
+//                Map<Object, Object> riskRatio = threeCustService.getRiskRatio();
+//                user.setSendNum((Integer) custTime.get(queryInfo.getCustId()));
+//                user.setPushRatio((Double) pushRatio.get(queryInfo.getCustId()));
+//                user.setRiskRatio((Double) riskRatio.get(queryInfo.getCustId()));
+
+                user.setSendNum((Integer) threeCustService.get1CustTime(queryInfo.getCustId()));
+                user.setPushRatio((Double) threeCustService.get1PushRatio(queryInfo.getCustId()));
+                user.setRiskRatio((Double) threeCustService.get1RiskRatio(queryInfo.getCustId()));
                 if (queryInfo.getSendLimit()!=null&&user.getSendNum() >= queryInfo.getSendLimit()) {
                     return null;
                 }
@@ -198,26 +202,26 @@ public class QueryService {
 //    }
 
     //一起过滤
-    public List<String> getCustIdBatch(BatchQueryInfo batchQueryInfo) {
+    public List<Object> getCustIdBatch(BatchQueryInfo batchQueryInfo) {
 //        List<String> result = queryMapper.batch_query(batchQueryInfo);
         String[] provinces = batchQueryInfo.getProvinces();
-        List<String> result = new ArrayList<>();
+        List<Object> result = new ArrayList<>();
         for (String province : provinces) {
             result.addAll(threeCustService.getProvince(province));
         }
-        Map<String, Integer> custTime;
+        Map<Object, Object> custTime;
         if (batchQueryInfo.getSendLimit() != null)
             custTime = threeCustService.getCustTime();
         else {
             custTime = new HashMap<>();
         }
-        Map<String, Double> pushRatio;
+        Map<Object, Object> pushRatio;
         if (batchQueryInfo.getPushRatio() != null)
             pushRatio = threeCustService.getPushRatio();
         else {
             pushRatio = new HashMap<>();
         }
-        Map<String, Double> riskRatio;
+        Map<Object, Object> riskRatio;
         if (batchQueryInfo.getRiskRatio() != null)
             riskRatio = threeCustService.getRiskRatio();
         else {
@@ -225,9 +229,9 @@ public class QueryService {
         }
         result = result.stream().filter(a -> {
                     boolean b1, b2, b3;
-                    b1 = custTime.get(a) == null || custTime.get(a) < batchQueryInfo.getSendLimit();
-                    b2 = pushRatio.get(a) == null || pushRatio.get(a) * 100 >= batchQueryInfo.getPushRatio();
-                    b3 = riskRatio.get(a) == null || riskRatio.get(a) * 100 <= batchQueryInfo.getRiskRatio();
+                    b1 = custTime.get(a) == null || (Integer)custTime.get(a) < batchQueryInfo.getSendLimit();
+                    b2 = pushRatio.get(a) == null || (Double) pushRatio.get(a) * 100 >= batchQueryInfo.getPushRatio();
+                    b3 = riskRatio.get(a) == null || (Double) riskRatio.get(a) * 100 <= batchQueryInfo.getRiskRatio();
                     return b1 && b2 && b3;
                 }
 

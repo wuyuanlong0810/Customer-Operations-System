@@ -17,7 +17,7 @@ public class FileService {
 
     private final Path tempDir = Paths.get("temp");
 
-    public String generateZipFile(List<String> data) throws IOException {
+    public String generateZipFile(List<Object> data) throws IOException {
         // Ensure the temp directory exists
         if (!Files.exists(tempDir)) {
             Files.createDirectory(tempDir);
@@ -29,7 +29,7 @@ public class FileService {
 
         // Convert list to text file content
         StringBuilder sb = new StringBuilder();
-        for (String line : data) {
+        for (Object line : data) {
             sb.append(line).append("\n");
         }
         byte[] txtContent = sb.toString().getBytes();
