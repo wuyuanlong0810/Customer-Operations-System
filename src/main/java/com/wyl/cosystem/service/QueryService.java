@@ -56,15 +56,20 @@ public class QueryService {
                 user.setSendNum((Integer) threeCustService.get1CustTime(queryInfo.getCustId()));
                 user.setPushRatio((Double) threeCustService.get1PushRatio(queryInfo.getCustId()));
                 user.setRiskRatio((Double) threeCustService.get1RiskRatio(queryInfo.getCustId()));
-                if (queryInfo.getSendLimit()!=null&&user.getSendNum() >= queryInfo.getSendLimit()) {
+                if (queryInfo.getSendLimit() != null && user.getSendNum() >= queryInfo.getSendLimit()) {
                     return null;
                 }
-                if (queryInfo.getPushRatio()!=null&&user.getPushRatio() < queryInfo.getPushRatio()) {
-                    return null;
+                if (user.getPushRatio() != null) {
+                    if (queryInfo.getPushRatio() != null && user.getPushRatio() < queryInfo.getPushRatio()) {
+                        return null;
+                    }
                 }
-                if (queryInfo.getRiskRatio()!=null&&user.getRiskRatio() > queryInfo.getRiskRatio()) {
-                    return null;
+                if (user.getRiskRatio() != null) {
+                    if (queryInfo.getRiskRatio() != null && user.getRiskRatio() > queryInfo.getRiskRatio()) {
+                        return null;
+                    }
                 }
+
             }
             return user;
         } catch (Exception e) {
@@ -72,16 +77,15 @@ public class QueryService {
             return null;
         } finally {
             if (user != null) {
-                User new_user = user.clone();
-                Message message = new Message(new Date(), new_user.getCustId());
+                Message message = new Message(new Date(), user.getCustId());
 
 //                redisMQ.add(message);
 
-                new_user.setSendNum(user.getSendNum() + 1); //自增
-                String cache_key1 = USER_CACHE_KEY_PREFIX + new_user.getCustId();
-                String cache_key2 = MOBILE_CACHE_KEY_PREFIX + new_user.getMobile();
-                redisTemplate.opsForValue().set(cache_key1, new_user, 10, TimeUnit.MINUTES);
-                redisTemplate.opsForValue().set(cache_key2, new_user, 10, TimeUnit.MINUTES);
+                user.setSendNum(user.getSendNum() + 1); //自增
+                String cache_key1 = USER_CACHE_KEY_PREFIX + user.getCustId();
+                String cache_key2 = MOBILE_CACHE_KEY_PREFIX + user.getMobile();
+                redisTemplate.opsForValue().set(cache_key1, user, 10, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(cache_key2, user, 10, TimeUnit.MINUTES);
 
             }
         }
@@ -229,7 +233,7 @@ public class QueryService {
         }
         result = result.stream().filter(a -> {
                     boolean b1, b2, b3;
-                    b1 = custTime.get(a) == null || (Integer)custTime.get(a) < batchQueryInfo.getSendLimit();
+                    b1 = custTime.get(a) == null || (Integer) custTime.get(a) < batchQueryInfo.getSendLimit();
                     b2 = pushRatio.get(a) == null || (Double) pushRatio.get(a) * 100 >= batchQueryInfo.getPushRatio();
                     b3 = riskRatio.get(a) == null || (Double) riskRatio.get(a) * 100 <= batchQueryInfo.getRiskRatio();
                     return b1 && b2 && b3;
